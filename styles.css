@@ -1,0 +1,230 @@
+:root[data-theme="light"] {
+    --bg-color: #f0f2f5;
+    --text-color: #1a1a1a;
+    --container-bg: rgba(255, 255, 255, 0.9);
+    --button-bg: linear-gradient(45deg, #f0f2f5, #e4e6e9);
+    --button-hover: linear-gradient(45deg, #e4e6e9, #d8dadd);
+}
+.visit-counter {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.2);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.visit-counter i {
+    color: #64dfdf;
+}
+.visit-counter span {
+    background: rgba(255,255,255,0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+.visit-counter:hover {
+    transform: scale(1.1);
+    background: rgba(255,255,255,0.2);
+}
+:root[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --container-bg: rgba(255, 255, 255, 0.1);
+    --button-bg: linear-gradient(45deg, #333, #444);
+    --button-hover: linear-gradient(45deg, #444, #555);
+}
+body {
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    text-align: center;
+    background: var(--container-bg);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.profile {
+    margin-bottom: 40px;
+}
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    border: 4px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 25px rgba(0,0,0,0.2);
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+.profile-pic:hover {
+    transform: scale(1.05);
+    border-color: rgba(255,255,255,0.4);
+    box-shadow: 0 0 30px rgba(0,0,0,0.3);
+}
+.links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.link-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 24px;
+    background: var(--button-bg);
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 1.1em;
+}
+.link-button i {
+    margin-left: 10px;
+}
+.link-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    background: var(--button-hover);
+}
+.theme-switch {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #2196F3;
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+h1 {
+    font-size: 2em;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+.bio {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 1.1em;
+    color: var(--text-color);  /* تغيير اللون ليطابق لون الاسم */
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+@media screen and (max-width: 768px) {
+    .container {
+        margin: 80px 15px;  /* زيادة الهامش العلوي من 60 إلى 80 */
+        padding: 20px 15px;
+    }
+
+    .visit-counter {
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 0.8em;
+        transform: scale(0.9);
+    }
+
+    .visit-counter span {
+        padding: 2px 6px;
+    }
+
+    .visit-counter:hover {
+        transform: scale(1);
+    }
+}
+/* Social Media Brand Colors on Hover */
+.link-button[href*="instagram"]:hover {
+    background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+    color: white;
+    border: none;
+}
+
+.link-button[href*="twitter"]:hover {
+    background: #1DA1F2;
+    color: white;
+    border: none;
+}
+
+.link-button[href*="linkedin"]:hover {
+    background: #0077b5;
+    color: white;
+    border: none;
+}
+
+.link-button[href*="d7m0s.space"]:hover {
+    background: linear-gradient(45deg, #2196F3, #00BCD4);
+    color: white;
+    border: none;
+}
+
+.link-button[href*="wa.me"]:hover {
+    background: #25D366;
+    color: white;
+    border: none;
+}
+
+.link-button[href*="t.me"]:hover {
+    background: #0088cc;
+    color: white;
+    border: none;
+}
