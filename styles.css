@@ -39,14 +39,20 @@
     --button-bg: linear-gradient(45deg, #333, #444);
     --button-hover: linear-gradient(45deg, #444, #555);
 }
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* لمنع التمرير الأفقي */
+}
+
 body {
     font-family: Arial, sans-serif;
     direction: rtl;
     background-color: var(--bg-color);
     color: var(--text-color);
-    min-height: 100vh;
     background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: 400% 400%;
+    background-size: cover; /* تأكد من أن الخلفية تغطي كامل الصفحة */
     animation: gradient 15s ease infinite;
 }
 @keyframes gradient {
@@ -102,6 +108,31 @@ body {
     transition: all 0.3s ease;
     border: 1px solid rgba(255,255,255,0.1);
     font-size: 1.1em;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.link-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    background: var(--button-hover);
+    color: #fff;
+}
+
+/* تحسين التصميم المتجاوب */
+@media screen and (max-width: 768px) {
+    .container {
+        margin: 60px 15px;
+        padding: 20px 15px;
+    }
+
+    .profile-pic {
+        width: 120px;
+        height: 120px;
+    }
+
+    .link-button {
+        padding: 14px 20px;
+        font-size: 1em;
+    }
 }
 .link-button i {
     margin-left: 10px;

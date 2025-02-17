@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // عداد الزيارات
     initVisitCounter();
-
-    // وضع الليل/النهار
-    initThemeToggle();
+    // تحديث التاريخ في الفوتر
+    updateFooterDate();
+    typeWriter(document.getElementById('typed-bio'), 'Computer Networks and Cyber Security');
 });
 
 function initVisitCounter() {
@@ -12,7 +12,20 @@ function initVisitCounter() {
     visits = parseInt(visits) + 1;
     localStorage.setItem('visits', visits);
     visitsElement.textContent = visits;
+
+    if (visits === 1) {
+        alert('Welcome to your first visit! Enjoy exploring the links.');
+    }
 }
+
+function updateFooterDate() {
+    const footerDateElement = document.getElementById('currentYear');
+    const today = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = today.toLocaleDateString('en-US', options);
+    footerDateElement.innerHTML = `Ahmad Kaddah<br>${formattedDate}`;
+}
+
 function typeWriter(element, text, speed = 100) {
     let i = 0;
     function type() {
@@ -23,24 +36,4 @@ function typeWriter(element, text, speed = 100) {
         }
     }
     type();
-}
-
-const bioElement = document.getElementById('typed-bio');
-typeWriter(bioElement, 'Computer Networks and Cyber Security');
-// Add this to your existing code
-document.getElementById('currentYear').textContent = new Date().getFullYear();
-function initThemeToggle() {
-    const themeToggle = document.getElementById('theme-toggle');
-    const htmlElement = document.documentElement;
-
-    // تحقق من الوضع المحفوظ
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    htmlElement.setAttribute('data-theme', savedTheme);
-    themeToggle.checked = savedTheme === 'light';
-
-    themeToggle.addEventListener('change', () => {
-        const newTheme = themeToggle.checked ? 'light' : 'dark';
-        htmlElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    });
 }
