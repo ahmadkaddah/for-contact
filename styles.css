@@ -39,26 +39,146 @@
     --button-bg: linear-gradient(45deg, #333, #444);
     --button-hover: linear-gradient(45deg, #444, #555);
 }
-html, body {
-    height: 100%;
+.top-controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    left: 20px;
+}
+.visit-counter {
+    position: static; /* تغيير من absolute إلى static */
     margin: 0;
-    padding: 0;
-    overflow-x: hidden; /* لمنع التمرير الأفقي */
 }
 
+@media screen and (max-width: 768px) {
+    .top-controls {
+        justify-content: space-between;
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+}
+.visit-counter i {
+    color: #64dfdf;
+}
+.visit-counter span {
+    background: rgba(255,255,255,0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+.visit-counter:hover {
+    transform: scale(1.1);
+    background: rgba(255,255,255,0.2);
+}
+:root[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --container-bg: rgba(255, 255, 255, 0.1);
+    --button-bg: linear-gradient(45deg, #333, #444);
+    --button-hover: linear-gradient(45deg, #444, #555);
+}
+.lang-switch {
+    order: 2;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-color);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;  /* زيادة المسافة بين الأيقونة والنص */
+    padding: 6px 12px;
+    transition: all 0.3s ease;
+}
+.lang-switch i {
+    margin-right: 5px;  /* إضافة هامش لليمين */
+}
+.lang-switch:hover {
+    transform: scale(1.1);
+    background: rgba(255,255,255,0.2);
+}
+@media screen and (max-width: 768px) {
+    .top-controls {
+        justify-content: space-between;
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+
+    .lang-switch {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+}
+.visit-counter i {
+    color: #64dfdf;
+}
+.visit-counter span {
+    background: rgba(255,255,255,0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+.visit-counter:hover {
+    transform: scale(1.1);
+    background: rgba(255,255,255,0.2);
+}
+:root[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --container-bg: rgba(255, 255, 255, 0.1);
+    --button-bg: linear-gradient(45deg, #333, #444);
+    --button-hover: linear-gradient(45deg, #444, #555);
+}
+/* تصحيح تعريف body */
 body {
     font-family: Arial, sans-serif;
     direction: rtl;
-    background-color: var(--bg-color);
     color: var(--text-color);
+    min-height: 100vh;
+    margin: 0;
     background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: cover; /* تأكد من أن الخلفية تغطي كامل الصفحة */
+    background-size: 400% 400%;
     animation: gradient 15s ease infinite;
 }
 @keyframes gradient {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
+}
+.lang-switch {
+    order: 2;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-color);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+.lang-switch:hover {
+    transform: scale(1.1);
+    background: rgba(255,255,255,0.2);
+}
+
+/* حذف التعريفات المكررة وإبقاء تعريف واحد فقط لـ html, body */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 .container {
     max-width: 600px;
@@ -208,6 +328,7 @@ h1 {
     }
 
     .visit-counter {
+        order: 1;
         top: 10px;
         right: 10px;
         padding: 6px 12px;
