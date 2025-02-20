@@ -33,6 +33,14 @@ function initVisitCounter() {
     });
 }
 
+function updateFooterDate(lang = 'ar') {
+    const footerDateElement = document.getElementById('currentYear');
+    const today = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = today.toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', options);
+    footerDateElement.innerHTML = `Ahmad Kaddah<br>${formattedDate}`;
+}
+
 function initLanguageToggle() {
     const langToggle = document.getElementById('langToggle');
     const translations = {
@@ -62,15 +70,18 @@ function initLanguageToggle() {
 
     let currentLang = 'ar';
 
+    updateTexts(translations[currentLang], currentLang);
+
     langToggle.addEventListener('click', () => {
         currentLang = currentLang === 'ar' ? 'en' : 'ar';
         document.documentElement.setAttribute('lang', currentLang);
         langToggle.querySelector('span').textContent = currentLang === 'ar' ? 'EN' : 'AR';
-        updateTexts(translations[currentLang]);
+        updateTexts(translations[currentLang], currentLang);
+        updateFooterDate(currentLang);
     });
 }
 
-function updateTexts(texts) {
+function updateTexts(texts, currentLang) {
     document.querySelector('.visit-counter').childNodes[1].textContent = ` ${texts.visits} `;
     const buttons = document.querySelectorAll('.link-button');
     buttons.forEach(button => {
@@ -81,15 +92,30 @@ function updateTexts(texts) {
         if (button.href.includes('wa.me')) button.childNodes[1].textContent = ` ${texts.whatsapp}`;
         if (button.href.includes('t.me')) button.childNodes[1].textContent = ` ${texts.telegram}`;
     });
+
     const questionButtons = document.querySelectorAll('.question-button');
     questionButtons.forEach(button => {
-        if (button.href.includes('Love-Test')) {
-            button.querySelector(`span[data-lang="${currentLang}"]`).style.display = 'block';
-            button.querySelector(`span[data-lang="${currentLang === 'ar' ? 'en' : 'ar'}"]`).style.display = 'none';
-        }
-        if (button.href.includes('matias.ma')) {
-            button.querySelector(`span[data-lang="${currentLang}"]`).style.display = 'block';
-            button.querySelector(`span[data-lang="${currentLang === 'ar' ? 'en' : 'ar'}"]`).style.display = 'none';
+        const arSpan = button.querySelector('span[data-lang="ar"]');
+        const enSpan = button.querySelector('span[data-lang="en"]');
+        if (currentLang === 'ar') {
+            arSpan.style.display = 'block';
+            enSpan.style.display = 'none';
+        } else {
+            arSpan.style.display = 'none';
+            enSpan.style.display = 'block';
         }
     });
+}
+
+function typeWriter(element, text, speed = 100) {
+    let i = 0;
+    element.innerHTML = '';
+    function type() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        }
+    }
+    type();
 }
