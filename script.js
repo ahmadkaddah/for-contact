@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // عداد الزيارات
     initVisitCounter();
-    // تحديث التاريخ في الفوتر
     updateFooterDate();
-    // إضافة استدعاء وظيفة تغيير اللغة
     initLanguageToggle();
     typeWriter(document.getElementById('typed-bio'), 'Computer Networks and Cyber Security');
 });
@@ -14,7 +11,6 @@ function initVisitCounter() {
     visits = parseInt(visits) + 1;
     localStorage.setItem('visits', visits);
     visitsElement.textContent = visits;
-
     if (visits === 1) {
         alert('Welcome to your first visit! Enjoy exploring the links.');
     }
@@ -69,17 +65,12 @@ function initLanguageToggle() {
         currentLang = currentLang === 'ar' ? 'en' : 'ar';
         document.documentElement.setAttribute('lang', currentLang);
         langToggle.querySelector('span').textContent = currentLang === 'ar' ? 'EN' : 'AR';
-
-        // تحديث النصوص
         updateTexts(translations[currentLang]);
     });
 }
 
 function updateTexts(texts) {
-    // تحديث نص الزيارات
     document.querySelector('.visit-counter').childNodes[1].textContent = ` ${texts.visits} `;
-
-    // تحديث نصوص الأزرار
     const buttons = document.querySelectorAll('.link-button');
     buttons.forEach(button => {
         if (button.href.includes('instagram')) button.childNodes[1].textContent = ` ${texts.instagram}`;
