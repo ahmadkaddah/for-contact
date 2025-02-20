@@ -48,6 +48,7 @@
     top: 20px;
     right: 20px;
     left: 20px;
+    margin-bottom: 30px;
 }
 .visit-counter {
     position: static; /* تغيير من absolute إلى static */
@@ -172,6 +173,161 @@ body {
     transform: scale(1.1);
     background: rgba(255,255,255,0.2);
 }
+.separator {
+    display: flex;
+    align-items: center;
+    margin: 30px 0;
+    gap: 15px;
+}
+
+.separator .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.5), transparent);
+}
+
+.separator i {
+    color: white;
+    font-size: 1.2em;
+    animation: heartbeat 1.5s ease infinite;
+}
+
+.question-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.question-button {
+    padding: 12px 24px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
+    color: var(--text-color);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.question-button:hover {
+    transform: scale(1.05);
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.question-button:active {
+    transform: scale(0.95);
+}
+.question-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transition: 0.5s;
+}
+.question-button:hover::before {
+    left: 100%;
+}
+
+
+[data-lang] {
+    display: none !important;
+}
+
+html[lang="ar"] [data-lang="ar"] {
+    display: block !important;
+}
+html[lang="en"] [data-lang="en"] {
+    display: block !important;
+}
+html[lang="ar"] {
+    direction: rtl;
+}
+html[lang="en"] {
+    direction: ltr;
+}
+
+
+
+@media screen and (max-width: 768px) {
+    .question-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .question-button {
+        width: 100%;
+        padding: 10px 20px;
+    }
+}
+.visit-counter i {
+    color: #64dfdf;
+}
+.visit-counter span {
+    background: rgba(255,255,255,0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+.visit-counter:hover {
+    transform: scale(1.1);
+    background: rgba(255,255,255,0.2);
+}
+:root[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --container-bg: rgba(255, 255, 255, 0.1);
+    --button-bg: linear-gradient(45deg, #333, #444);
+    --button-hover: linear-gradient(45deg, #444, #555);
+}
+/* تصحيح تعريف body */
+body {
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    color: var(--text-color);
+    min-height: 100vh;
+    margin: 0;
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.lang-switch {
+    order: 2;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-color);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+.lang-switch:hover {
+    transform: scale(1.1);
+    background: rgba(255,255,255,0.2);
+}
 
 /* حذف التعريفات المكررة وإبقاء تعريف واحد فقط لـ html, body */
 html, body {
@@ -215,6 +371,7 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-bottom: 30px;
 }
 .link-button {
     display: flex;
@@ -229,6 +386,7 @@ html, body {
     border: 1px solid rgba(255,255,255,0.1);
     font-size: 1.1em;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    gap: 8px;
 }
 .link-button:hover {
     transform: translateY(-3px);
@@ -236,6 +394,13 @@ html, body {
     background: var(--button-hover);
     color: #fff;
 }
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    14% { transform: scale(1.3); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.3); }
+    70% { transform: scale(1); }
 
 /* تحسين التصميم المتجاوب */
 @media screen and (max-width: 768px) {
@@ -255,7 +420,8 @@ html, body {
     }
 }
 .link-button i {
-    margin-left: 10px;
+    margin-left: 0;
+    font-size: 1.2em;
 }
 .link-button:hover {
     transform: translateY(-3px);
@@ -311,6 +477,7 @@ input:checked + .slider:before {
 }
 h1 {
     font-size: 2em;
+    margin-top: 40px;
     margin-bottom: 15px;
     font-weight: 700;
 }
@@ -321,6 +488,8 @@ h1 {
     font-weight: 500;
     letter-spacing: 0.5px;
 }
+
+
 @media screen and (max-width: 768px) {
     .container {
         margin: 80px 15px;  /* زيادة الهامش العلوي من 60 إلى 80 */
