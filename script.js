@@ -53,7 +53,8 @@ function initLanguageToggle() {
             whatsapp: 'واتساب',
             telegram: 'تيليجرام',
             loveTest: 'هل تحبني',
-            trustTest: 'هل تثق بي'
+            trustTest: 'هل تثق بي',
+            funnyVid: 'اضحك شوي'
         },
         en: {
             visits: 'Visits',
@@ -64,7 +65,8 @@ function initLanguageToggle() {
             whatsapp: 'WhatsApp',
             telegram: 'Telegram',
             loveTest: 'Do U love me',
-            trustTest: 'Do U trust me'
+            trustTest: 'Do U trust me',
+            funnyVid: 'Laugh a bit'
         }
     };
 
