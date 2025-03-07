@@ -1,8 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
-    initVisitCounter();
+    if (document.getElementById('visits')) {
+        initVisitCounter();
+    }
+
     updateFooterDate();
-    initLanguageToggle();
-    typeWriter(document.getElementById('typed-bio'), 'Computer Networks and Cyber Security');
+
+    if (document.getElementById('langToggle')) {
+        initLanguageToggle();
+    }
+    if (document.getElementById('typed-bio')) {
+        typeWriter(document.getElementById('typed-bio'), 'Computer Networks and Cyber Security');
+    }
+    initCertificateViewer();
 });
 
 const firebaseConfig = {
@@ -35,10 +44,12 @@ function initVisitCounter() {
 
 function updateFooterDate(lang = 'ar') {
     const footerDateElement = document.getElementById('currentYear');
-    const today = new Date();
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const formattedDate = today.toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', options);
-    footerDateElement.innerHTML = `Ahmad Kaddah<br>${formattedDate}`;
+    if (footerDateElement) {
+        const today = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = today.toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', options);
+        footerDateElement.innerHTML = `Ahmad Kaddah<br>${formattedDate}`;
+    }
 }
 
 function initLanguageToggle() {
@@ -54,7 +65,9 @@ function initLanguageToggle() {
             telegram: 'تيليجرام',
             loveTest: 'هل تحبني',
             trustTest: 'هل تثق بي',
-            funnyVid: 'اضحك شوي'
+            funnyVid: 'اضحك شوي',
+            github: 'جيتهاب',
+            certificates: 'شهاداتي'
         },
         en: {
             visits: 'Visits',
@@ -66,7 +79,9 @@ function initLanguageToggle() {
             telegram: 'Telegram',
             loveTest: 'Do U love me',
             trustTest: 'Do U trust me',
-            funnyVid: 'Laugh a bit'
+            funnyVid: 'Laugh a bit',
+            github: 'GitHub',
+            certificates: 'My Certificates'
         }
     };
 
@@ -84,7 +99,10 @@ function initLanguageToggle() {
 }
 
 function updateTexts(texts, currentLang) {
-    document.querySelector('.visit-counter').childNodes[1].textContent = ` ${texts.visits} `;
+    const visitCounter = document.querySelector('.visit-counter');
+    if (visitCounter) {
+        visitCounter.childNodes[1].textContent = ` ${texts.visits} `;
+    }
     const buttons = document.querySelectorAll('.link-button');
     buttons.forEach(button => {
         if (button.href.includes('instagram')) button.childNodes[1].textContent = ` ${texts.instagram}`;
@@ -93,8 +111,9 @@ function updateTexts(texts, currentLang) {
         if (button.href.includes('d7m0s.space')) button.childNodes[1].textContent = ` ${texts.website}`;
         if (button.href.includes('wa.me')) button.childNodes[1].textContent = ` ${texts.whatsapp}`;
         if (button.href.includes('t.me')) button.childNodes[1].textContent = ` ${texts.telegram}`;
+        if (button.href.includes('github.com')) button.childNodes[1].textContent = ` ${texts.github}`;
+        if (button.href.includes('certificates.html')) button.childNodes[1].textContent = ` ${texts.certificates}`;
     });
-
     const questionButtons = document.querySelectorAll('.question-button');
     questionButtons.forEach(button => {
         const arSpan = button.querySelector('span[data-lang="ar"]');
@@ -114,10 +133,43 @@ function typeWriter(element, text, speed = 100) {
     element.innerHTML = '';
     function type() {
         if (i < text.length) {
-            element.innerHTML += text.charAt(i);
+            element.innerHTML = text.substring(0, i + 1);
             i++;
             setTimeout(type, speed);
         }
     }
     type();
+}
+
+
+function initCertificateViewer() {
+    const modal = document.getElementById('certificateModal');
+    const modalImg = document.getElementById('expandedCertificate');
+    const closeBtn = document.getElementsByClassName('close')[0];
+    const certificateImages = document.querySelectorAll('.certificate-image');
+
+    if (!modal || !modalImg || !closeBtn || certificateImages.length === 0) {
+        console.log('Certificate viewer elements not found');
+        return;
+    }
+
+    console.log('Certificate viewer initialized');
+
+    certificateImages.forEach(img => {
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', function () {
+            modal.style.display = 'block';
+            modalImg.src = this.src;
+        });
+    });
+
+    closeBtn.addEventListener('click', function () {
+        modal.style.display = 'none';
+    });
+
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 }

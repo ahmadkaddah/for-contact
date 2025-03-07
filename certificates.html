@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="شهادات أحمد قداح - مطور شبكات وأمن سيبراني">
+  <title>شهاداتي</title>
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="container">
+    <a href="index.html" class="back-button">
+      <i class="fas fa-arrow-left"></i> العودة للصفحة الرئيسية
+    </a>
+
+    <h1>شهاداتي</h1>
+
+    <div class="certificates-container">
+      <div class="certificate-card">
+        <img src="./Masar.png" alt="شهادة تدريب Masar" class="certificate-image">
+        <div class="certificate-title">تدريب مسار</div>
+        <div class="certificate-issuer">المركز الوطني الأردني للأمن السيبراني (NCSC)</div>
+        <div class="certificate-date">2024</div>
+      </div>
+
+      <div class="certificate-card">
+        <img src="./Cyber Warriors.png" alt="شهادة تدريب Cyber Warriors" class="certificate-image">
+        <div class="certificate-title">Cyber Warriors (CTF Training)</div>
+        <div class="certificate-issuer">المركز الوطني الأردني للأمن السيبراني (NCSC)</div>
+        <div class="certificate-date">2024</div>
+      </div>
+
+      <div class="certificate-card">
+        <img src="./Threat Landscape.png" alt="شهادة إتمام دورة Threat Landscape" class="certificate-image">
+        <div class="certificate-title">Introduction To The Threat Landscape 2.0</div>
+        <div class="certificate-issuer">Fortinet Training Institute</div>
+        <div class="certificate-date">2024</div>
+      </div>
+
+      <div class="certificate-card">
+        <img src="./hasoob.png" alt="شهادة في إدارة الأنظمة" class="certificate-image">
+        <div class="certificate-title">دورة تطوير الواجهات الأمامية (Front-End Web Development)</div>
+        <div class="certificate-issuer">أكاديمية حسوب</div>
+        <div class="certificate-date">2021</div>
+      </div>
+
+    </div>
+    <div class="separator">
+      <div class="line"></div>
+      <i class="fas fa-heart"></i>
+      <div class="line"></div>
+    </div>
+
+    <div class="footer">
+      <p id="currentYear"></p>
+    </div>
+  </div>
+
+  <div id="certificateModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="expandedCertificate">
+  </div>
+
+  <script src="./script.js"></script>
+
+</body>
+
+</html>
