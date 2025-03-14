@@ -264,9 +264,6 @@
     color: #bbb;
 }
 
-
-
-
 @media screen and (max-width: 768px) {
     .project-card {
         flex-direction: column;
@@ -279,6 +276,43 @@
     
     .project-content {
         width: 100%;
+        padding: 15px;
+        text-align: right;
+        box-sizing: border-box;
+    }
+
+    .project-description {
+        text-align: right;
+        width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        padding-right: 0;
+        margin-right: 0;
+        direction: rtl;
+        max-width: 100%;
+        box-sizing: border-box;
+        white-space: normal;
+        position: relative;
+        right: 0;
+        left: auto;
+    }
+
+    .project-tech {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+    
+    .project-links {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    .container {
+        overflow-x: hidden;
+        max-width: 100%;
+        padding: 20px 10px;
     }
 }
 
@@ -1069,4 +1103,3 @@ h1 {
     color: white;
     border: none;
 }
-
