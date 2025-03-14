@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
         typeWriter(document.getElementById('typed-bio'), 'Computer Networks and Cyber Security');
     }
     initCertificateViewer();
+    initProjectsPage();
+    initCertificatesPage();
 });
 
 const firebaseConfig = {
@@ -67,7 +69,8 @@ function initLanguageToggle() {
             trustTest: 'هل تثق بي',
             funnyVid: 'اضحك شوي',
             github: 'جيتهاب',
-            certificates: 'شهاداتي'
+            certificates: 'شهاداتي',
+            projects: 'مشاريعي'
         },
         en: {
             visits: 'Visits',
@@ -81,11 +84,19 @@ function initLanguageToggle() {
             trustTest: 'Do U trust me',
             funnyVid: 'Laugh a bit',
             github: 'GitHub',
-            certificates: 'My Certificates'
+            certificates: 'My Certificates',
+            projects: 'My Projects'
         }
     };
 
     let currentLang = 'ar';
+
+    const savedLang = localStorage.getItem('language');
+    if (savedLang) {
+        currentLang = savedLang;
+        document.documentElement.setAttribute('lang', currentLang);
+        langToggle.querySelector('span').textContent = currentLang === 'ar' ? 'EN' : 'AR';
+    }
 
     updateTexts(translations[currentLang], currentLang);
 
@@ -95,6 +106,8 @@ function initLanguageToggle() {
         langToggle.querySelector('span').textContent = currentLang === 'ar' ? 'EN' : 'AR';
         updateTexts(translations[currentLang], currentLang);
         updateFooterDate(currentLang);
+
+        localStorage.setItem('language', currentLang);
     });
 }
 
@@ -113,6 +126,7 @@ function updateTexts(texts, currentLang) {
         if (button.href.includes('t.me')) button.childNodes[1].textContent = ` ${texts.telegram}`;
         if (button.href.includes('github.com')) button.childNodes[1].textContent = ` ${texts.github}`;
         if (button.href.includes('certificates.html')) button.childNodes[1].textContent = ` ${texts.certificates}`;
+        if (button.href.includes('projects.html')) button.childNodes[1].textContent = ` ${texts.projects}`;
     });
     const questionButtons = document.querySelectorAll('.question-button');
     questionButtons.forEach(button => {
@@ -140,7 +154,6 @@ function typeWriter(element, text, speed = 100) {
     }
     type();
 }
-
 
 function initCertificateViewer() {
     const modal = document.getElementById('certificateModal');
@@ -172,4 +185,87 @@ function initCertificateViewer() {
             modal.style.display = 'none';
         }
     });
+}
+
+function initCertificatesPage() {
+    if (window.location.pathname.includes('certificates.html')) {
+        const savedLang = localStorage.getItem('language') || 'ar';
+        const htmlElement = document.documentElement;
+        htmlElement.setAttribute('lang', savedLang);
+
+        const certificatesTranslations = {
+            ar: {
+                backButton: 'العودة للصفحة الرئيسية',
+                pageTitle: 'شهاداتي'
+            },
+            en: {
+                backButton: 'Back to Home',
+                pageTitle: 'My Certificates'
+            }
+        };
+
+        const texts = certificatesTranslations[savedLang];
+
+        document.querySelector('h1').textContent = texts.pageTitle;
+
+        const backButton = document.querySelector('.back-button');
+        if (backButton) {
+            const icon = backButton.querySelector('i');
+            backButton.innerHTML = '';
+            backButton.appendChild(icon);
+            backButton.appendChild(document.createTextNode(` ${texts.backButton}`));
+        }
+
+        updateFooterDate(savedLang);
+    }
+}
+
+function initProjectsPage() {
+    if (window.location.pathname.includes('projects.html')) {
+        const savedLang = localStorage.getItem('language') || 'ar';
+        const htmlElement = document.documentElement;
+        htmlElement.setAttribute('lang', savedLang);
+
+        const projectsTranslations = {
+            ar: {
+                backButton: 'العودة للصفحة الرئيسية',
+                pageTitle: 'مشاريعي',
+                viewCode: 'عرض الكود',
+                viewProject: 'عرض المشروع'
+            },
+            en: {
+                backButton: 'Back to Home',
+                pageTitle: 'My Projects',
+                viewCode: 'View Code',
+                viewProject: 'View Project'
+            }
+        };
+
+        const texts = projectsTranslations[savedLang];
+
+        document.querySelector('h1').textContent = texts.pageTitle;
+
+        const backButton = document.querySelector('.back-button');
+        if (backButton) {
+            const icon = backButton.querySelector('i');
+            backButton.innerHTML = '';
+            backButton.appendChild(icon);
+            backButton.appendChild(document.createTextNode(` ${texts.backButton}`));
+        }
+
+        const projectLinks = document.querySelectorAll('.project-link');
+        projectLinks.forEach(link => {
+            const icon = link.querySelector('i');
+            link.innerHTML = '';
+            link.appendChild(icon);
+
+            if (link.href.includes('github.com')) {
+                link.appendChild(document.createTextNode(` ${texts.viewCode}`));
+            } else {
+                link.appendChild(document.createTextNode(` ${texts.viewProject}`));
+            }
+        });
+
+        updateFooterDate(savedLang);
+    }
 }
