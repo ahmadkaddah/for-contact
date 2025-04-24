@@ -116,6 +116,19 @@ function updateTexts(texts, currentLang) {
     if (visitCounter) {
         visitCounter.childNodes[1].textContent = ` ${texts.visits} `;
     }
+    const devBanner = document.querySelector('.dev-banner');
+    if (devBanner) {
+        const arSpan = devBanner.querySelector('span[data-lang="ar"]');
+        const enSpan = devBanner.querySelector('span[data-lang="en"]');
+        if (currentLang === 'ar') {
+            arSpan.style.display = 'block';
+            enSpan.style.display = 'none';
+        } else {
+            arSpan.style.display = 'none';
+            enSpan.style.display = 'block';
+        }
+    }
+    
     const buttons = document.querySelectorAll('.link-button');
     buttons.forEach(button => {
         if (button.href.includes('instagram')) button.childNodes[1].textContent = ` ${texts.instagram}`;
