@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="استديو أحمد قداح - معرض الصور">
+  <title>الاستديو</title>
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="gallery-top-header">
+      <a href="index.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> <span data-lang="ar">العودة للصفحة الرئيسية</span><span data-lang="en" style="display: none;">Back to Home</span>
+      </a>
+      <div class="gallery-header-right">
+        <button class="admin-login-btn" id="adminLoginBtn" style="display: none;">
+          <i class="fas fa-lock"></i>
+          <span data-lang="ar">تسجيل دخول</span>
+          <span data-lang="en" style="display: none;">Login</span>
+        </button>
+        <button class="lang-switch" id="langToggle">
+          <i class="fas fa-language"></i>
+          <span>EN</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="dev-banner">
+      <i class="fas fa-images"></i>
+      <span data-lang="ar" style="display: block;">استكشف لحظاتي المميزة... كل صورة تحكي قصة</span>
+      <span data-lang="en" style="display: none;">Explore my special moments... each photo tells a story!</span>
+    </div>
+    
+    <h1><span data-lang="ar">الاستديو</span><span data-lang="en" style="display: none;">Studio</span></h1>
+    
+    
+    <div class="upload-section" id="uploadSection" style="display: none;">
+      <div class="admin-controls">
+        <div class="upload-buttons-group">
+          <label for="imageUpload" class="upload-button">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span data-lang="ar">رفع صور جديدة</span>
+            <span data-lang="en" style="display: none;">Upload New Images</span>
+          </label>
+          <button class="logout-btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span data-lang="ar">تسجيل خروج</span>
+            <span data-lang="en" style="display: none;">Logout</span>
+          </button>
+        </div>
+        <input type="file" id="imageUpload" multiple accept="image/*" style="display: none;">
+        <div id="uploadInfo" style="display: none; align-items: center; gap: 10px; justify-content: center; padding: 15px;">
+          <i class="fas fa-spinner fa-spin" style="color: #64dfdf;"></i>
+          <span data-lang="ar">جاري رفع الصور...</span>
+          <span data-lang="en" style="display: none;">Uploading images...</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="galleryContainer" class="gallery-container"></div>
+
+    <div class="separator">
+      <div class="line"></div>
+      <i class="fas fa-heart"></i>
+      <div class="line"></div>
+    </div>
+
+    <div class="footer">
+      <p id="currentYear"></p>
+    </div>
+  </div>
+
+  <div id="loginModal" class="login-modal">
+    <div class="login-modal-content">
+      <span class="login-close">&times;</span>
+      <h2><span data-lang="ar">تسجيل الدخول</span><span data-lang="en" style="display: none;">Login</span></h2>
+      <p class="login-subtitle"><span data-lang="ar">أدخل كلمة المرور</span><span data-lang="en" style="display: none;">Enter password</span></p>
+      
+      <div id="loginError" style="display: none;">
+        <i class="fas fa-exclamation-circle"></i>
+        <span data-lang="ar">كلمة المرور غير صحيحة</span>
+        <span data-lang="en" style="display: none;">Incorrect password</span>
+      </div>
+      
+      <div class="password-input-wrapper">
+        <input type="password" id="adminPassword" class="login-input" placeholder="Password" autocomplete="off">
+        <button class="password-toggle" id="passwordToggle" type="button">
+          <i class="fas fa-eye-slash"></i>
+        </button>
+      </div>
+      
+      <button id="loginSubmitBtn" class="login-submit-btn">
+        <span data-lang="ar">دخول</span>
+        <span data-lang="en" style="display: none;">Login</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="imageModal" class="gallery-modal">
+    <span class="gallery-close">&times;</span>
+    <img class="gallery-modal-content" id="modalImage" src="" alt="">
+    <div class="gallery-nav">
+      <button id="prevBtn" class="gallery-prev"><i class="fas fa-chevron-left"></i></button>
+      <button id="nextBtn" class="gallery-next"><i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+
+  <script src="./studio.js"></script>
+</body>
+
+</html>

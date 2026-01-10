@@ -70,7 +70,8 @@ function initLanguageToggle() {
             funnyVid: 'اضحك شوي',
             github: 'جيتهاب',
             certificates: 'شهاداتي',
-            projects: 'مشاريعي'
+            projects: 'مشاريعي',
+            studio: 'الاستديو'
         },
         en: {
             visits: 'Visits',
@@ -85,7 +86,8 @@ function initLanguageToggle() {
             funnyVid: 'Laugh a bit',
             github: 'GitHub',
             certificates: 'My Certificates',
-            projects: 'My Projects'
+            projects: 'My Projects',
+            studio: 'Studio'
         }
     };
 
@@ -140,6 +142,17 @@ function updateTexts(texts, currentLang) {
         if (button.href.includes('github.com')) button.childNodes[1].textContent = ` ${texts.github}`;
         if (button.href.includes('certificates.html')) button.childNodes[1].textContent = ` ${texts.certificates}`;
         if (button.href.includes('projects.html')) button.childNodes[1].textContent = ` ${texts.projects}`;
+        if (button.href.includes('studio.html')) {
+            const arSpan = button.querySelector('span[data-lang="ar"]');
+            const enSpan = button.querySelector('span[data-lang="en"]');
+            if (currentLang === 'ar') {
+                if (arSpan) arSpan.style.display = 'inline';
+                if (enSpan) enSpan.style.display = 'none';
+            } else {
+                if (arSpan) arSpan.style.display = 'none';
+                if (enSpan) enSpan.style.display = 'inline';
+            }
+        }
     });
     const questionButtons = document.querySelectorAll('.question-button');
     questionButtons.forEach(button => {
