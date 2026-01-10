@@ -62,7 +62,6 @@ function initLanguageToggle() {
             instagram: 'انستغرام',
             twitter: 'تويتر',
             linkedin: 'لينكد إن',
-            website: 'موقعي الشخصي',
             whatsapp: 'واتساب',
             telegram: 'تيليجرام',
             loveTest: 'هل تحبني',
@@ -78,7 +77,6 @@ function initLanguageToggle() {
             instagram: 'Instagram',
             twitter: 'Twitter',
             linkedin: 'LinkedIn',
-            website: 'My Website',
             whatsapp: 'WhatsApp',
             telegram: 'Telegram',
             loveTest: 'Do U love me',
@@ -136,7 +134,6 @@ function updateTexts(texts, currentLang) {
         if (button.href.includes('instagram')) button.childNodes[1].textContent = ` ${texts.instagram}`;
         if (button.href.includes('twitter')) button.childNodes[1].textContent = ` ${texts.twitter}`;
         if (button.href.includes('linkedin')) button.childNodes[1].textContent = ` ${texts.linkedin}`;
-        if (button.href.includes('d7m0s.space')) button.childNodes[1].textContent = ` ${texts.website}`;
         if (button.href.includes('wa.me')) button.childNodes[1].textContent = ` ${texts.whatsapp}`;
         if (button.href.includes('t.me')) button.childNodes[1].textContent = ` ${texts.telegram}`;
         if (button.href.includes('github.com')) button.childNodes[1].textContent = ` ${texts.github}`;

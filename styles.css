@@ -1103,11 +1103,6 @@ h1 {
     border: none;
 }
 
-.link-button[href*="d7m0s.space"]:hover {
-    background: linear-gradient(45deg, #2196F3, #00BCD4, #3F51B5);
-    color: white;
-    border: none;
-}
 
 .link-button[href*="wa.me"]:hover {
     background: linear-gradient(45deg, #25D366, #128C7E);
