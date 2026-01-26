@@ -50,7 +50,16 @@ function updateFooterDate(lang = 'ar') {
         const today = new Date();
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = today.toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', options);
-        footerDateElement.innerHTML = `Ahmad Kaddah<br>${formattedDate}`;
+        
+        const madeInText = lang === 'ar' ? 'صنع في سورية' : 'Made in Syria';
+        
+        footerDateElement.innerHTML = `
+            <div>Ahmad Kaddah<br>${formattedDate}</div>
+            <div class="made-in-container">
+                <span class="made-in-text">${madeInText}</span>
+                <span class="syrian-flag"></span>
+            </div>
+        `;
     }
 }
 

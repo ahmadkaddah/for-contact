@@ -28,11 +28,13 @@ const ADMIN_PASSWORD = 'Q1w2e3e3w2q1!!';
 let currentImages = [];
 let currentImageIndex = 0;
 let isAdminLoggedIn = false;
+let scrollObserver;
 
 function initStudio() {
     const savedLang = localStorage.getItem('language') || 'ar';
     document.documentElement.setAttribute('lang', savedLang);
-    
+
+    setupScrollObserver();
     checkAdminStatus();
     loadGallery();
     setupEventListeners();
@@ -254,8 +256,7 @@ function handleImageUpload(event) {
 
 function uploadToCloudinary(file) {
     return new Promise((resolve, reject) => {
-        // التحقق من حجم الملف (حد أقصى 10MB)
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        const maxSize = 10 * 1024 * 1024;
         if (file.size > maxSize) {
             reject(new Error(`حجم الملف كبير جداً. الحد الأقصى هو 10MB. حجم الملف الحالي: ${(file.size / 1024 / 1024).toFixed(2)}MB`));
             return;
@@ -264,7 +265,7 @@ function uploadToCloudinary(file) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
-        formData.append('folder', 'studio'); // إضافة مجلد للتنظيم
+        formData.append('folder', 'studio');
 
         console.log('إرسال طلب رفع إلى Cloudinary...');
         console.log('Cloud Name:', CLOUDINARY_CONFIG.cloudName);
@@ -274,33 +275,33 @@ function uploadToCloudinary(file) {
             method: 'POST',
             body: formData
         })
-        .then(response => {
-            console.log('استجابة Cloudinary:', response.status, response.statusText);
-            if (!response.ok) {
-                return response.text().then(text => {
-                    console.error('خطأ في الاستجابة:', text);
-                    throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('بيانات الاستجابة من Cloudinary:', data);
-            if (data.secure_url) {
-                console.log('تم رفع الصورة بنجاح:', data.secure_url);
-                resolve(data.secure_url);
-            } else if (data.error) {
-                console.error('خطأ من Cloudinary:', data.error);
-                reject(new Error('Upload failed: ' + data.error.message));
-            } else {
-                console.error('فشل الرفع - لا يوجد secure_url:', data);
-                reject(new Error('Upload failed: Unknown error - ' + JSON.stringify(data)));
-            }
-        })
-        .catch(error => {
-            console.error('خطأ في رفع الصورة إلى Cloudinary:', error);
-            reject(error);
-        });
+            .then(response => {
+                console.log('استجابة Cloudinary:', response.status, response.statusText);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('خطأ في الاستجابة:', text);
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('بيانات الاستجابة من Cloudinary:', data);
+                if (data.secure_url) {
+                    console.log('تم رفع الصورة بنجاح:', data.secure_url);
+                    resolve(data.secure_url);
+                } else if (data.error) {
+                    console.error('خطأ من Cloudinary:', data.error);
+                    reject(new Error('Upload failed: ' + data.error.message));
+                } else {
+                    console.error('فشل الرفع - لا يوجد secure_url:', data);
+                    reject(new Error('Upload failed: Unknown error - ' + JSON.stringify(data)));
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في رفع الصورة إلى Cloudinary:', error);
+                reject(error);
+            });
     });
 }
 
@@ -311,12 +312,11 @@ function saveImageToFirebase(imageUrl) {
         url: imageUrl,
         timestamp: firebase.database.ServerValue.TIMESTAMP
     };
-    
+
     newImageRef.set(imageData)
         .then(() => {
             console.log('تم حفظ الصورة في Firebase بنجاح:', imageUrl);
             console.log('المسار:', newImageRef.toString());
-            // إعادة تحميل المعرض بعد الحفظ
             setTimeout(() => {
                 loadGallery();
             }, 500);
@@ -332,10 +332,10 @@ function loadGallery() {
     if (!galleryContainer) return;
 
     const imagesRef = db.ref('gallery/images');
-    
+
     console.log('جاري تحميل الصور من Firebase...');
     console.log('المسار:', imagesRef.toString());
-    
+
     imagesRef.orderByChild('timestamp').on('value', (snapshot) => {
         console.log('بيانات من Firebase:', snapshot.val());
         const images = [];
@@ -354,9 +354,11 @@ function loadGallery() {
         } else {
             console.log('لا توجد صور في Firebase');
         }
-        
+
         console.log(`تم تحميل ${images.length} صورة من Firebase`);
-        currentImages = images.reverse();
+        console.log(`تم تحميل ${images.length} صورة من Firebase`);
+        currentImages = shuffleArray(images);
+        updateGalleryStats(currentImages);
         displayGallery(currentImages);
     }, (error) => {
         console.error('خطأ في تحميل الصور من Firebase:', error);
@@ -371,6 +373,27 @@ function loadGallery() {
             `;
         }
     });
+}
+
+function updateGalleryStats(images) {
+    const statsContainer = document.getElementById('galleryStats');
+    if (!statsContainer) return;
+
+    if (images.length > 0) {
+        statsContainer.style.display = 'flex';
+        document.getElementById('totalImages').textContent = images.length;
+
+        const timestamps = images.map(img => img.timestamp).filter(t => t);
+        if (timestamps.length > 0) {
+            const lastTimestamp = Math.max(...timestamps);
+            const date = new Date(lastTimestamp);
+            const currentLang = document.documentElement.getAttribute('lang') || 'ar';
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('lastUpdate').textContent = date.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', options);
+        }
+    } else {
+        statsContainer.style.display = 'none';
+    }
 }
 
 function displayGallery(images) {
@@ -389,18 +412,82 @@ function displayGallery(images) {
     }
 
     galleryContainer.innerHTML = '';
+
     images.forEach((image, index) => {
         const imageCard = document.createElement('div');
-        imageCard.className = 'gallery-item';
+        imageCard.className = 'gallery-item scroll-reveal';
+
+        let optimizedUrl = image.url;
+        if (optimizedUrl.includes('cloudinary.com') && optimizedUrl.includes('/upload/') && !optimizedUrl.includes('f_auto,q_auto')) {
+            optimizedUrl = optimizedUrl.replace('/upload/', '/upload/f_auto,q_auto/');
+        }
+
+        const date = new Date(image.timestamp || Date.now());
+        const dateStr = date.toLocaleDateString('en-GB');
+        const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
         imageCard.innerHTML = `
-            <img src="${image.url}" alt="Gallery Image" loading="lazy">
-            ${isAdminLoggedIn ? `<button class="delete-image-btn" data-id="${image.id}"><i class="fas fa-trash"></i></button>` : ''}
+            <div class="gallery-item-inner">
+                <div class="gallery-item-front">
+                    <img src="${optimizedUrl}" alt="Gallery Image" loading="lazy">
+                    ${isAdminLoggedIn ? `<button class="delete-image-btn" data-id="${image.id}"><i class="fas fa-trash"></i></button>` : ''}
+                    <div class="flip-hint"><i class="fas fa-info"></i></div>
+                </div>
+                <div class="gallery-item-back">
+                    <div class="back-content">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="detail-row">
+                            <span class="detail-label">
+                                <span data-lang="ar">التاريخ:</span>
+                                <span data-lang="en">Date:</span>
+                            </span>
+                            <span class="detail-value" style="font-family: sans-serif; direction: ltr;">${dateStr}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">
+                                <span data-lang="ar">الحجم:</span>
+                                <span data-lang="en">Size:</span>
+                            </span>
+                            <span class="image-size detail-value" style="font-family: sans-serif; direction: ltr;">...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
-        
-        const img = imageCard.querySelector('img');
-        img.addEventListener('click', () => {
-            currentImageIndex = index;
-            showImageModal(image.url);
+
+        imageCard.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-image-btn')) return;
+
+            const isFlipped = imageCard.classList.contains('flipped');
+
+            document.querySelectorAll('.gallery-item.flipped').forEach(card => {
+                if (card !== imageCard) {
+                    card.classList.remove('flipped');
+                }
+            });
+
+            imageCard.classList.toggle('flipped');
+
+            if (!isFlipped && !imageCard.dataset.sizeLoaded) {
+                const sizeEl = imageCard.querySelector('.image-size');
+                if (sizeEl) sizeEl.textContent = '...';
+
+                fetch(optimizedUrl, { method: 'HEAD' })
+                    .then(response => {
+                        const size = response.headers.get('content-length');
+                        if (size) {
+                            const formattedSize = formatBytes(size);
+                            if (sizeEl) sizeEl.textContent = formattedSize;
+                            imageCard.dataset.sizeLoaded = "true";
+                        } else {
+                            if (sizeEl) sizeEl.textContent = 'Unknown';
+                        }
+                    })
+                    .catch(() => {
+                        if (sizeEl) sizeEl.textContent = 'Unknown';
+                        imageCard.dataset.sizeLoaded = "true";
+                    });
+            }
         });
 
         if (isAdminLoggedIn) {
@@ -416,6 +503,10 @@ function displayGallery(images) {
         }
 
         galleryContainer.appendChild(imageCard);
+
+        if (scrollObserver) {
+            scrollObserver.observe(imageCard);
+        }
     });
 }
 
@@ -428,7 +519,7 @@ function showImageModal(imageUrl) {
     if (imageModal && modalImage) {
         modalImage.src = imageUrl;
         imageModal.style.display = 'block';
-        
+
         if (prevBtn) {
             prevBtn.style.display = currentImageIndex > 0 ? 'block' : 'none';
         }
@@ -440,7 +531,7 @@ function showImageModal(imageUrl) {
 
 function updateModalImage() {
     if (currentImages.length === 0) return;
-    
+
     const modalImage = document.getElementById('modalImage');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
@@ -448,7 +539,7 @@ function updateModalImage() {
 
     if (modalImage && currentImages[currentImageIndex]) {
         modalImage.src = currentImages[currentImageIndex].url;
-        
+
         if (prevBtn) {
             prevBtn.style.display = currentImageIndex > 0 ? 'block' : 'none';
         }
@@ -463,7 +554,6 @@ function deleteImage(imageId) {
     imageRef.remove()
         .then(() => {
             console.log('تم حذف الصورة بنجاح');
-            // إعادة تحميل المعرض بعد الحذف
             loadGallery();
         })
         .catch(error => {
@@ -482,17 +572,34 @@ function showSuccessMessage(count) {
         <span data-lang="en" style="display: ${currentLang === 'en' ? 'inline' : 'none'};">Successfully uploaded ${count} image(s)</span>
     `;
     document.body.appendChild(message);
-    
+
     setTimeout(() => {
         message.classList.add('show');
     }, 100);
-    
+
     setTimeout(() => {
         message.classList.remove('show');
         setTimeout(() => {
             message.remove();
         }, 300);
     }, 3000);
+}
+
+function setupScrollObserver() {
+    const options = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+    };
+
+    scrollObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, options);
 }
 
 function showErrorMessage(message) {
@@ -503,11 +610,11 @@ function showErrorMessage(message) {
         <span>${message}</span>
     `;
     document.body.appendChild(errorMsg);
-    
+
     setTimeout(() => {
         errorMsg.classList.add('show');
     }, 100);
-    
+
     setTimeout(() => {
         errorMsg.classList.remove('show');
         setTimeout(() => {
@@ -522,33 +629,49 @@ function updateFooterDate(lang = 'ar') {
         const today = new Date();
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = today.toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', options);
-        footerDateElement.innerHTML = `Ahmad Kaddah<br>${formattedDate}`;
+
+        const madeInText = lang === 'ar' ? 'صنع في سورية' : 'Made in Syria';
+
+        footerDateElement.innerHTML = `
+            <div>Ahmad Kaddah<br>${formattedDate}</div>
+            <div class="made-in-container">
+                <span class="made-in-text">${madeInText}</span>
+                <span class="syrian-flag"></span>
+            </div>
+        `;
     }
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 }
 
 function initLanguageToggle() {
     const savedLang = localStorage.getItem('language') || 'ar';
     document.documentElement.setAttribute('lang', savedLang);
-    
+
     const langToggle = document.getElementById('langToggle');
     if (langToggle) {
         const langSpan = langToggle.querySelector('span');
         if (langSpan) {
             langSpan.textContent = savedLang === 'ar' ? 'EN' : 'AR';
         }
-        
+
         langToggle.addEventListener('click', () => {
             const currentLang = document.documentElement.getAttribute('lang');
             const newLang = currentLang === 'ar' ? 'en' : 'ar';
             document.documentElement.setAttribute('lang', newLang);
             localStorage.setItem('language', newLang);
             updateFooterDate(newLang);
-            
+
             if (langSpan) {
                 langSpan.textContent = newLang === 'ar' ? 'EN' : 'AR';
             }
-            
-            // Update all data-lang elements
+
             document.querySelectorAll('[data-lang="ar"]').forEach(el => {
                 el.style.display = newLang === 'ar' ? 'block' : 'none';
             });
@@ -557,4 +680,16 @@ function initLanguageToggle() {
             });
         });
     }
+}
+
+function formatBytes(bytes, decimals = 2) {
+    if (!+bytes) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
