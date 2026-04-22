@@ -6,6 +6,33 @@
     --button-hover: linear-gradient(45deg, #e4e6e9, #d8dadd);
 }
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    color: var(--text-color);
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    overflow-x: hidden;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 .visit-counter {
     position: absolute;
     top: 20px;
@@ -319,9 +346,11 @@
     }
 
     .container {
+        width: 95%;
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px 15px;
         overflow-x: hidden;
-        max-width: 100%;
-        padding: 20px 10px;
     }
 }
 
@@ -1014,17 +1043,10 @@ body {
     background: rgba(255, 255, 255, 0.2);
 }
 
-html,
-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-}
-
 .container {
+    width: 95%;
     max-width: 600px;
-    margin: 50px auto;
+    margin: 50px 10px;
     padding: 30px;
     text-align: center;
     background: var(--container-bg);
@@ -1032,8 +1054,8 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
 }
 
 .profile {
@@ -1157,8 +1179,9 @@ body {
     }
 
     .container {
-        margin: 60px 15px;
+        margin: 60px auto;
         padding: 20px 15px;
+        width: 95%;
     }
 
     .profile-pic {
@@ -1255,8 +1278,9 @@ h1 {
 
 @media screen and (max-width: 768px) {
     .container {
-        margin: 80px 15px;
+        margin: 80px auto;
         padding: 20px 15px;
+        width: 95%;
     }
 
     .visit-counter {
@@ -1608,6 +1632,45 @@ body.is-admin .gallery-item:hover .gallery-item-front {
     object-fit: contain;
     display: block;
     border-radius: 15px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.gallery-item img.loaded {
+    opacity: 1;
+}
+
+.gallery-item.img-loading .gallery-item-front {
+    min-height: 200px;
+    background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.04) 25%,
+        rgba(255,255,255,0.1) 50%,
+        rgba(255,255,255,0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 15px;
+}
+
+.gallery-item.skeleton-card {
+    min-height: 220px;
+    border-radius: 15px;
+    background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.04) 25%,
+        rgba(255,255,255,0.1) 50%,
+        rgba(255,255,255,0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    break-inside: avoid;
+    margin-bottom: 16px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 @media screen and (max-width: 900px) {

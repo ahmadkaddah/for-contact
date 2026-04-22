@@ -75,9 +75,6 @@ function setupEventListeners() {
     const adminPassword = document.getElementById('adminPassword');
     const imageUpload = document.getElementById('imageUpload');
     const logoutBtn = document.getElementById('logoutBtn');
-    const galleryClose = document.querySelector('.gallery-close');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
 
     if (adminLoginBtn) {
         adminLoginBtn.addEventListener('click', () => {
@@ -100,9 +97,7 @@ function setupEventListeners() {
 
     if (adminPassword) {
         adminPassword.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                handleLogin();
-            }
+            if (e.key === 'Enter') handleLogin();
         });
     }
 
@@ -127,7 +122,6 @@ function setupEventListeners() {
             sessionStorage.removeItem('adminLoggedIn');
             showLoginButton();
             displayGallery(currentImages);
-            console.log('تم تسجيل الخروج - تم إخفاء قسم الرفع');
         });
     }
 
@@ -167,10 +161,10 @@ function setupGalleryListeners() {
     const galleryClose = document.querySelector('.gallery-close');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
+    const imageModal = document.getElementById('imageModal');
 
     if (galleryClose) {
         galleryClose.addEventListener('click', () => {
-            const imageModal = document.getElementById('imageModal');
             if (imageModal) imageModal.style.display = 'none';
         });
     }
@@ -193,17 +187,12 @@ function setupGalleryListeners() {
         });
     }
 
-    const imageModal = document.getElementById('imageModal');
     if (imageModal) {
         imageModal.addEventListener('click', (e) => {
-            if (e.target === imageModal) {
-                imageModal.style.display = 'none';
-            }
+            if (e.target === imageModal) imageModal.style.display = 'none';
         });
     }
-
 }
-
 
 function handleImageUpload(event) {
     const files = event.target.files;
@@ -215,39 +204,24 @@ function handleImageUpload(event) {
         uploadInfo.style.justifyContent = 'center';
     }
 
-    console.log(`بدء رفع ${files.length} صورة...`);
-
-    const uploadPromises = [];
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        console.log(`رفع الصورة ${i + 1}/${files.length}: ${file.name}`);
-        uploadPromises.push(uploadToCloudinary(file));
-    }
+    const uploadPromises = Array.from(files).map(file => uploadToCloudinary(file));
 
     Promise.all(uploadPromises)
         .then(urls => {
-            console.log('جميع الصور تم رفعها:', urls);
-            let successCount = 0;
-            urls.forEach((url, index) => {
-                if (url) {
-                    saveImageToFirebase(url);
-                    successCount++;
-                    console.log(`تم حفظ الصورة ${index + 1} في Firebase`);
-                } else {
-                    console.error(`فشل رفع الصورة ${index + 1}`);
-                }
-            });
+            const validUrls = urls.filter(Boolean);
+            const savePromises = validUrls.map(url => saveImageToFirebase(url));
+            return Promise.all(savePromises).then(() => validUrls.length);
+        })
+        .then(successCount => {
             if (uploadInfo) uploadInfo.style.display = 'none';
             event.target.value = '';
             if (successCount > 0) {
-                console.log(`تم رفع ${successCount} من ${files.length} صورة بنجاح`);
                 showSuccessMessage(successCount);
             } else {
                 showErrorMessage('فشل رفع جميع الصور. تحقق من إعدادات Cloudinary.');
             }
         })
         .catch(error => {
-            console.error('Upload error:', error);
             if (uploadInfo) uploadInfo.style.display = 'none';
             showErrorMessage('حدث خطأ أثناء رفع الصور: ' + error.message);
             event.target.value = '';
@@ -258,7 +232,7 @@ function uploadToCloudinary(file) {
     return new Promise((resolve, reject) => {
         const maxSize = 10 * 1024 * 1024;
         if (file.size > maxSize) {
-            reject(new Error(`حجم الملف كبير جداً. الحد الأقصى هو 10MB. حجم الملف الحالي: ${(file.size / 1024 / 1024).toFixed(2)}MB`));
+            reject(new Error(`حجم الملف كبير جداً. الحد الأقصى هو 10MB.`));
             return;
         }
 
@@ -267,82 +241,47 @@ function uploadToCloudinary(file) {
         formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
         formData.append('folder', 'studio');
 
-        console.log('إرسال طلب رفع إلى Cloudinary...');
-        console.log('Cloud Name:', CLOUDINARY_CONFIG.cloudName);
-        console.log('Upload Preset:', CLOUDINARY_CONFIG.uploadPreset);
-
         fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`, {
             method: 'POST',
             body: formData
         })
             .then(response => {
-                console.log('استجابة Cloudinary:', response.status, response.statusText);
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        console.error('خطأ في الاستجابة:', text);
-                        throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
-                    });
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return response.json();
             })
             .then(data => {
-                console.log('بيانات الاستجابة من Cloudinary:', data);
                 if (data.secure_url) {
-                    console.log('تم رفع الصورة بنجاح:', data.secure_url);
                     resolve(data.secure_url);
-                } else if (data.error) {
-                    console.error('خطأ من Cloudinary:', data.error);
-                    reject(new Error('Upload failed: ' + data.error.message));
                 } else {
-                    console.error('فشل الرفع - لا يوجد secure_url:', data);
-                    reject(new Error('Upload failed: Unknown error - ' + JSON.stringify(data)));
+                    reject(new Error('Upload failed: ' + (data.error?.message || 'Unknown error')));
                 }
             })
-            .catch(error => {
-                console.error('خطأ في رفع الصورة إلى Cloudinary:', error);
-                reject(error);
-            });
+            .catch(reject);
     });
 }
 
 function saveImageToFirebase(imageUrl) {
     const imagesRef = db.ref('gallery/images');
     const newImageRef = imagesRef.push();
-    const imageData = {
+    return newImageRef.set({
         url: imageUrl,
         timestamp: firebase.database.ServerValue.TIMESTAMP
-    };
-
-    newImageRef.set(imageData)
-        .then(() => {
-            console.log('تم حفظ الصورة في Firebase بنجاح:', imageUrl);
-            console.log('المسار:', newImageRef.toString());
-            setTimeout(() => {
-                loadGallery();
-            }, 500);
-        })
-        .catch(error => {
-            console.error('خطأ في حفظ الصورة في Firebase:', error);
-            alert('حدث خطأ في حفظ الصورة: ' + error.message);
-        });
+    }).catch(error => {
+        showErrorMessage('حدث خطأ في حفظ الصورة: ' + error.message);
+    });
 }
 
 function loadGallery() {
     const galleryContainer = document.getElementById('galleryContainer');
     if (!galleryContainer) return;
 
-    const imagesRef = db.ref('gallery/images');
+    showSkeletons(galleryContainer, 6);
 
-    console.log('جاري تحميل الصور من Firebase...');
-    console.log('المسار:', imagesRef.toString());
-
-    imagesRef.orderByChild('timestamp').on('value', (snapshot) => {
-        console.log('بيانات من Firebase:', snapshot.val());
+    db.ref('gallery/images').orderByChild('timestamp').once('value', (snapshot) => {
         const images = [];
         if (snapshot.exists()) {
             snapshot.forEach((childSnapshot) => {
                 const imageData = childSnapshot.val();
-                console.log('صورة:', childSnapshot.key, imageData);
                 if (imageData && imageData.url) {
                     images.push({
                         id: childSnapshot.key,
@@ -351,28 +290,48 @@ function loadGallery() {
                     });
                 }
             });
-        } else {
-            console.log('لا توجد صور في Firebase');
         }
 
-        console.log(`تم تحميل ${images.length} صورة من Firebase`);
-        console.log(`تم تحميل ${images.length} صورة من Firebase`);
         currentImages = shuffleArray(images);
         updateGalleryStats(currentImages);
         displayGallery(currentImages);
     }, (error) => {
-        console.error('خطأ في تحميل الصور من Firebase:', error);
-        const galleryContainer = document.getElementById('galleryContainer');
-        if (galleryContainer) {
-            galleryContainer.innerHTML = `
-                <div class="empty-gallery">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p data-lang="ar">حدث خطأ في تحميل الصور: ${error.message}</p>
-                    <p data-lang="en" style="display: none;">Error loading images: ${error.message}</p>
-                </div>
-            `;
+        galleryContainer.innerHTML = `
+            <div class="empty-gallery">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p data-lang="ar">حدث خطأ في تحميل الصور: ${error.message}</p>
+                <p data-lang="en" style="display: none;">Error loading images: ${error.message}</p>
+            </div>
+        `;
+    });
+
+    db.ref('gallery/images').on('child_added', (snapshot) => {
+        const imageData = snapshot.val();
+        if (!imageData || !imageData.url) return;
+        const exists = currentImages.some(img => img.id === snapshot.key);
+        if (!exists) {
+            currentImages.unshift({ id: snapshot.key, url: imageData.url, timestamp: imageData.timestamp || 0 });
+            updateGalleryStats(currentImages);
+            displayGallery(currentImages);
         }
     });
+
+    db.ref('gallery/images').on('child_removed', (snapshot) => {
+        currentImages = currentImages.filter(img => img.id !== snapshot.key);
+        updateGalleryStats(currentImages);
+        displayGallery(currentImages);
+    });
+}
+
+function showSkeletons(container, count) {
+    container.innerHTML = '';
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+        const skeleton = document.createElement('div');
+        skeleton.className = 'gallery-item skeleton-card';
+        fragment.appendChild(skeleton);
+    }
+    container.appendChild(fragment);
 }
 
 function updateGalleryStats(images) {
@@ -411,25 +370,24 @@ function displayGallery(images) {
         return;
     }
 
-    galleryContainer.innerHTML = '';
+    const fragment = document.createDocumentFragment();
 
-    images.forEach((image, index) => {
+    images.forEach((image) => {
         const imageCard = document.createElement('div');
-        imageCard.className = 'gallery-item scroll-reveal';
+        imageCard.className = 'gallery-item scroll-reveal img-loading';
 
         let optimizedUrl = image.url;
         if (optimizedUrl.includes('cloudinary.com') && optimizedUrl.includes('/upload/') && !optimizedUrl.includes('f_auto,q_auto')) {
-            optimizedUrl = optimizedUrl.replace('/upload/', '/upload/f_auto,q_auto/');
+            optimizedUrl = optimizedUrl.replace('/upload/', '/upload/f_auto,q_auto,w_600/');
         }
 
         const date = new Date(image.timestamp || Date.now());
         const dateStr = date.toLocaleDateString('en-GB');
-        const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
         imageCard.innerHTML = `
             <div class="gallery-item-inner">
                 <div class="gallery-item-front">
-                    <img src="${optimizedUrl}" alt="Gallery Image" loading="lazy">
+                    <img data-src="${optimizedUrl}" src="" alt="Gallery Image" class="lazy-img">
                     ${isAdminLoggedIn ? `<button class="delete-image-btn" data-id="${image.id}"><i class="fas fa-trash"></i></button>` : ''}
                     <div class="flip-hint"><i class="fas fa-info"></i></div>
                 </div>
@@ -459,33 +417,22 @@ function displayGallery(images) {
             if (e.target.closest('.delete-image-btn')) return;
 
             const isFlipped = imageCard.classList.contains('flipped');
-
             document.querySelectorAll('.gallery-item.flipped').forEach(card => {
-                if (card !== imageCard) {
-                    card.classList.remove('flipped');
-                }
+                if (card !== imageCard) card.classList.remove('flipped');
             });
-
             imageCard.classList.toggle('flipped');
 
             if (!isFlipped && !imageCard.dataset.sizeLoaded) {
                 const sizeEl = imageCard.querySelector('.image-size');
-                if (sizeEl) sizeEl.textContent = '...';
-
                 fetch(optimizedUrl, { method: 'HEAD' })
                     .then(response => {
                         const size = response.headers.get('content-length');
-                        if (size) {
-                            const formattedSize = formatBytes(size);
-                            if (sizeEl) sizeEl.textContent = formattedSize;
-                            imageCard.dataset.sizeLoaded = "true";
-                        } else {
-                            if (sizeEl) sizeEl.textContent = 'Unknown';
-                        }
+                        if (sizeEl) sizeEl.textContent = size ? formatBytes(size) : 'Unknown';
+                        imageCard.dataset.sizeLoaded = 'true';
                     })
                     .catch(() => {
                         if (sizeEl) sizeEl.textContent = 'Unknown';
-                        imageCard.dataset.sizeLoaded = "true";
+                        imageCard.dataset.sizeLoaded = 'true';
                     });
             }
         });
@@ -495,19 +442,20 @@ function displayGallery(images) {
             if (deleteBtn) {
                 deleteBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
-                        deleteImage(image.id);
-                    }
+                    if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) deleteImage(image.id);
                 });
             }
         }
 
-        galleryContainer.appendChild(imageCard);
-
-        if (scrollObserver) {
-            scrollObserver.observe(imageCard);
-        }
+        fragment.appendChild(imageCard);
     });
+
+    galleryContainer.innerHTML = '';
+    galleryContainer.appendChild(fragment);
+
+    if (scrollObserver) {
+        galleryContainer.querySelectorAll('.gallery-item').forEach(card => scrollObserver.observe(card));
+    }
 }
 
 function showImageModal(imageUrl) {
@@ -519,46 +467,28 @@ function showImageModal(imageUrl) {
     if (imageModal && modalImage) {
         modalImage.src = imageUrl;
         imageModal.style.display = 'block';
-
-        if (prevBtn) {
-            prevBtn.style.display = currentImageIndex > 0 ? 'block' : 'none';
-        }
-        if (nextBtn) {
-            nextBtn.style.display = currentImageIndex < currentImages.length - 1 ? 'block' : 'none';
-        }
+        if (prevBtn) prevBtn.style.display = currentImageIndex > 0 ? 'block' : 'none';
+        if (nextBtn) nextBtn.style.display = currentImageIndex < currentImages.length - 1 ? 'block' : 'none';
     }
 }
 
 function updateModalImage() {
     if (currentImages.length === 0) return;
-
     const modalImage = document.getElementById('modalImage');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const imageModal = document.getElementById('imageModal');
 
     if (modalImage && currentImages[currentImageIndex]) {
         modalImage.src = currentImages[currentImageIndex].url;
-
-        if (prevBtn) {
-            prevBtn.style.display = currentImageIndex > 0 ? 'block' : 'none';
-        }
-        if (nextBtn) {
-            nextBtn.style.display = currentImageIndex < currentImages.length - 1 ? 'block' : 'none';
-        }
+        if (prevBtn) prevBtn.style.display = currentImageIndex > 0 ? 'block' : 'none';
+        if (nextBtn) nextBtn.style.display = currentImageIndex < currentImages.length - 1 ? 'block' : 'none';
     }
 }
 
 function deleteImage(imageId) {
-    const imageRef = db.ref(`gallery/images/${imageId}`);
-    imageRef.remove()
-        .then(() => {
-            console.log('تم حذف الصورة بنجاح');
-            loadGallery();
-        })
+    db.ref(`gallery/images/${imageId}`).remove()
         .catch(error => {
-            console.error('خطأ في حذف الصورة:', error);
-            alert('حدث خطأ أثناء حذف الصورة: ' + error.message);
+            showErrorMessage('حدث خطأ أثناء حذف الصورة: ' + error.message);
         });
 }
 
@@ -572,54 +502,45 @@ function showSuccessMessage(count) {
         <span data-lang="en" style="display: ${currentLang === 'en' ? 'inline' : 'none'};">Successfully uploaded ${count} image(s)</span>
     `;
     document.body.appendChild(message);
-
-    setTimeout(() => {
-        message.classList.add('show');
-    }, 100);
-
+    setTimeout(() => message.classList.add('show'), 100);
     setTimeout(() => {
         message.classList.remove('show');
-        setTimeout(() => {
-            message.remove();
-        }, 300);
+        setTimeout(() => message.remove(), 300);
     }, 3000);
 }
 
 function setupScrollObserver() {
-    const options = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-    };
-
     scrollObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
+                const img = entry.target.querySelector('img[data-src]');
+                if (img) {
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                    img.addEventListener('load', () => {
+                        img.classList.add('loaded');
+                        entry.target.classList.remove('img-loading');
+                    });
+                    img.addEventListener('error', () => {
+                        entry.target.classList.remove('img-loading');
+                    });
+                }
                 entry.target.classList.add('active');
                 observer.unobserve(entry.target);
             }
         });
-    }, options);
+    }, { root: null, rootMargin: '300px', threshold: 0.01 });
 }
 
 function showErrorMessage(message) {
     const errorMsg = document.createElement('div');
     errorMsg.className = 'upload-error-message';
-    errorMsg.innerHTML = `
-        <i class="fas fa-exclamation-circle"></i>
-        <span>${message}</span>
-    `;
+    errorMsg.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>${message}</span>`;
     document.body.appendChild(errorMsg);
-
-    setTimeout(() => {
-        errorMsg.classList.add('show');
-    }, 100);
-
+    setTimeout(() => errorMsg.classList.add('show'), 100);
     setTimeout(() => {
         errorMsg.classList.remove('show');
-        setTimeout(() => {
-            errorMsg.remove();
-        }, 300);
+        setTimeout(() => errorMsg.remove(), 300);
     }, 4000);
 }
 
@@ -629,9 +550,7 @@ function updateFooterDate(lang = 'ar') {
         const today = new Date();
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = today.toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', options);
-
         const madeInText = lang === 'ar' ? 'صنع في سورية' : 'Made in Syria';
-
         footerDateElement.innerHTML = `
             <div>Ahmad Kaddah<br>${formattedDate}</div>
             <div class="made-in-container">
@@ -657,9 +576,7 @@ function initLanguageToggle() {
     const langToggle = document.getElementById('langToggle');
     if (langToggle) {
         const langSpan = langToggle.querySelector('span');
-        if (langSpan) {
-            langSpan.textContent = savedLang === 'ar' ? 'EN' : 'AR';
-        }
+        if (langSpan) langSpan.textContent = savedLang === 'ar' ? 'EN' : 'AR';
 
         langToggle.addEventListener('click', () => {
             const currentLang = document.documentElement.getAttribute('lang');
@@ -667,10 +584,7 @@ function initLanguageToggle() {
             document.documentElement.setAttribute('lang', newLang);
             localStorage.setItem('language', newLang);
             updateFooterDate(newLang);
-
-            if (langSpan) {
-                langSpan.textContent = newLang === 'ar' ? 'EN' : 'AR';
-            }
+            if (langSpan) langSpan.textContent = newLang === 'ar' ? 'EN' : 'AR';
 
             document.querySelectorAll('[data-lang="ar"]').forEach(el => {
                 el.style.display = newLang === 'ar' ? 'block' : 'none';
@@ -684,12 +598,9 @@ function initLanguageToggle() {
 
 function formatBytes(bytes, decimals = 2) {
     if (!+bytes) return '0 Bytes';
-
     const k = 1024;
     const dm = decimals < 0 ? 0 : decimals;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
