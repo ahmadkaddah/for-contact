@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCertificateViewer();
     initProjectsPage();
     initCertificatesPage();
+    initQREnvelope();
 });
 
 const firebaseConfig = {
@@ -50,9 +51,9 @@ function updateFooterDate(lang = 'ar') {
         const today = new Date();
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = today.toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', options);
-        
+
         const madeInText = lang === 'ar' ? 'صنع في سورية' : 'Made in Syria';
-        
+
         footerDateElement.innerHTML = `
             <div>Ahmad Kaddah<br>${formattedDate}</div>
             <div class="made-in-container">
@@ -137,7 +138,7 @@ function updateTexts(texts, currentLang) {
             enSpan.style.display = 'block';
         }
     }
-    
+
     const buttons = document.querySelectorAll('.link-button');
     buttons.forEach(button => {
         if (button.href.includes('instagram')) button.childNodes[1].textContent = ` ${texts.instagram}`;
@@ -197,8 +198,6 @@ function initCertificateViewer() {
         console.log('Certificate viewer elements not found');
         return;
     }
-
-    console.log('Certificate viewer initialized');
 
     certificateImages.forEach(img => {
         img.style.cursor = 'pointer';
@@ -299,5 +298,49 @@ function initProjectsPage() {
         });
 
         updateFooterDate(savedLang);
+    }
+}
+
+function initQREnvelope() {
+    const envelope = document.getElementById('envelope');
+    if (envelope) {
+        envelope.addEventListener('click', (e) => {
+            const isOpen = envelope.classList.toggle('open');
+            if (isOpen) {
+                createPetals(envelope);
+            }
+        });
+    }
+}
+
+function createPetals(parent) {
+    const colors = ['#ff758c', '#ff7eb3', '#fad0c4', '#ff9a9e'];
+    for (let i = 0; i < 20; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+
+        const size = Math.random() * 12 + 8;
+        petal.style.width = `${size}px`;
+        petal.style.height = `${size}px`;
+
+        petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+        petal.style.left = `${Math.random() * 80 + 10}%`;
+        petal.style.top = `20%`;
+
+        const sway = (Math.random() - 0.5) * 100;
+        const rotation = Math.random() * 720 - 360;
+        petal.style.setProperty('--sway', `${sway}px`);
+        petal.style.setProperty('--rotation', `${rotation}deg`);
+
+        const duration = Math.random() * 2 + 2;
+        const delay = Math.random() * 0.5;
+        petal.style.animation = `petal-fall ${duration}s ease-in-out ${delay}s forwards`;
+
+        parent.appendChild(petal);
+
+        setTimeout(() => {
+            petal.remove();
+        }, (duration + delay) * 1000);
     }
 }
